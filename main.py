@@ -46,7 +46,7 @@ def main():
     # Question 1
     df_weapon = analyze_incidents_by_weapon()
     print(f"[analyze] Q1 by weapon: {df_weapon.shape[0]} categories, "
-          f"total pairs = {df_weapon['incident_count'].sum()}")
+          f"total incidents = {df_weapon['incident_count'].sum()}")
     fig1 = plot_incidents_by_weapon(df_weapon)
     fig1.savefig(outputs_dir / "q1_incidents_by_weapon.png", dpi=150)
 
