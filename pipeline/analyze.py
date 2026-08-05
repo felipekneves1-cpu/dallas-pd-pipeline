@@ -16,6 +16,11 @@ def analyze_incidents_by_weapon() -> pd.DataFrame:
     average number of officers involved, grouped by subject weapon.
     Uses JOIN + GROUP BY + aggregate functions.
 
+    A CTE first reduces subjects to one row per case_number (its
+    count of subjects), so the LEFT JOIN below neither duplicates
+    incidents that have multiple subjects nor drops incidents that
+    have none -- the result always sums to 219.
+
     Args:
         None
 
@@ -23,12 +28,17 @@ def analyze_incidents_by_weapon() -> pd.DataFrame:
         pd.DataFrame: columns [subject_weapon, incident_count, avg_officers]
     """
     query = """
+        WITH subject_counts AS (
+            SELECT case_number, COUNT(*) AS n
+            FROM subjects
+            GROUP BY case_number
+        )
         SELECT
             i.subject_weapon,
             COUNT(*) AS incident_count,
             AVG(i.officer_count) AS avg_officers
         FROM incidents i
-        JOIN subjects s ON i.case_number = s.case_number
+        LEFT JOIN subject_counts sc ON i.case_number = sc.case_number
         GROUP BY i.subject_weapon
         ORDER BY incident_count DESC
     """
